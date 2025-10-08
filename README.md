@@ -5,6 +5,7 @@ Hệ thống monitoring ở mức cơ bản. Theo dõi tài nguyên các vps lin
 #### Grafana: 
   - image: grafana/grafana:12.3.0-18329792253
   - Update: 08/10/2025
+  - Dashboard for node-exporter: 1860
 
 #### Prometheus:
   - image: prom/prometheus:v3.6.0
