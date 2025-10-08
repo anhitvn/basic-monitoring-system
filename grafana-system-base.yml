@@ -4,9 +4,11 @@ networks:
 services:
   grafana:
     image: grafana/grafana:12.3.0-18329792253
+    container_name: grafana
     restart: always
     volumes:
-      - ./grafana_data:/var/lib/grafana
+      - ./grafana_data/lib:/var/lib/grafana
+      - ./grafana_data/grafana.ini:/etc/grafana/grafana.ini
     ports:
       - 9010:3000
     networks:
@@ -15,11 +17,12 @@ services:
       - prometheus
 
   prometheus:
-    image: ubuntu/prometheus:2-24.04
-    restart: always
+    image: prom/prometheus:v3.6.0
+    container_name: prometheus
+    restart: unless-stopped
     volumes:
-      - ./prometheus_config/:/etc/prometheus/
-      - ./prometheus_data:/prometheus
+      - ./prometheus_data/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus_data/data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
@@ -33,20 +36,19 @@ services:
       - node-exporter
 
   node-exporter:
-    image: prom/node-exporter:v1.9.1
-    container_name: node-exporter
-    restart: always
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/rootfs:ro
-    command:
-      - "--path.procfs=/host/proc"
-      - "--path.sysfs=/host/sys"
-      - "--path.rootfs=/rootfs"
-      - "--collector.filesystem.ignored-mount-points='^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var>
+    image: prom/node-exporter:v1.9.1
+    container_name: node-exporter
+    restart: always
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--path.rootfs=/rootfs"
+      - "--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/kubelet/pods)"
     ports:
       - 9012:9090
     networks:
       - monitor-net
-    
